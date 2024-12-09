@@ -1,0 +1,37 @@
+ version: '3.7'
+
+ services:
+  mediawiki:
+    image: mediawiki:latest
+    container_name: mediawiki
+    ports:
+      - "8080:80"
+    volumes:
+      - mediawiki_data:/var/www/html
+    environment:
+      - MEDIAWIKI_SITE_SERVER=http://localhost:8080
+      - MEDIAWIKI_DB_TYPE=mysql
+      - MEDIAWIKI_DB_HOST=db
+      - MEDIAWIKI_DB_PORT=3306
+      - MEDIAWIKI_DB_NAME=mediawiki
+      - MEDIAWIKI_DB_USER=wikiuser
+      - MEDIAWIKI_DB_PASSWORD=wikisecret
+    depends_on:
+      - db
+
+  db:
+    image: mariadb:latest
+    container_name: mediawiki_db
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: mediawiki
+      MYSQL_USER: wikiuser
+      MYSQL_PASSWORD: wikisecret
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+
+ volumes:
+  mediawiki_data:
+  db_data:

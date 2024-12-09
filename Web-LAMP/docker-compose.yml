@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile   
+    ports:
+      - "8080:80"
+    volumes:
+      - ./web_personal:/var/www/html
+    depends_on:
+      - db
+    networks:
+      - webnet
+
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"  # Permite que MySQL funcione sin contraseña
+      MYSQL_ROOT_PASSWORD: ""  # No se establece una contraseña para el root
+      MYSQL_DATABASE: project  # Nombre de la base de datos
+      MYSQL_USER: projectuser  # Usuario de la base de datos sin contraseña
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - webnet
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - "8081:80"  # Accede a phpMyAdmin en http://localhost:8081
+    environment:
+      PMA_HOST: db  # Nombre del servicio de la base de datos
+      PMA_USER: projectuser  # Usuario para acceder a la base de datos
+      PMA_PASSWORD: ""  # Contraseña vacía si no has configurado una
+    depends_on:
+      - db
+    networks:
+      - webnet
+
+volumes:
+  db_data:
+
+networks:
+  webnet:
+    driver: bridge
